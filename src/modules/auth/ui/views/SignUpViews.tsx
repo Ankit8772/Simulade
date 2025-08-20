@@ -5,8 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 import { OctagonAlertIcon } from "lucide-react";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,6 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 
-// Corrected Zod schema definition
 const formSchema = z.object({
     name: z.string().min(1, { message: "Name is required" }),
     email: z.string().email({ message: "Invalid email address" }),
@@ -31,7 +31,7 @@ const formSchema = z.object({
 })
 .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
-    path: ["confirmPassword"], // This ensures the error message appears under the confirm password field
+    path: ["confirmPassword"],
 });
 
 export const SignUpView = () => {
@@ -57,6 +57,7 @@ export const SignUpView = () => {
                 name: values.name,
                 email: values.email,
                 password: values.password,
+                callbackURL: "/",
             },
             {
                 onSuccess: () => {
@@ -65,7 +66,28 @@ export const SignUpView = () => {
                 },
                 onError: ({ error }) => {
                     setError(error.message);
-                    setPending(false); // Ensure pending is reset on error
+                    setPending(false);
+                }
+            }
+        );
+    };
+
+    const onSocial = (provider: "github" | "google") => {
+        setError(null);
+        setPending(true);
+
+        authClient.signIn.social(
+            {
+                provider: provider,
+                callbackURL: "/",
+            },
+            {
+                onSuccess: () => {
+                    setPending(false);
+                },
+                onError: ({ error }) => {
+                    setError(error.message);
+                    setPending(false);
                 }
             }
         );
@@ -87,19 +109,14 @@ export const SignUpView = () => {
                                 </div>
 
                                 <div className="grid gap-4">
-                                    {/* All form fields are now grouped */}
                                     <FormField
                                         control={form.control}
-                                        name="name" // Corrected from "email"
+                                        name="name"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Name</FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="John Doe"
-                                                        {...field}
-                                                    />
+                                                    <Input type="text" placeholder="John Doe" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -112,11 +129,7 @@ export const SignUpView = () => {
                                             <FormItem>
                                                 <FormLabel>Email</FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="email"
-                                                        placeholder="am@example.com"
-                                                        {...field}
-                                                    />
+                                                    <Input type="email" placeholder="am@example.com" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -129,11 +142,7 @@ export const SignUpView = () => {
                                             <FormItem>
                                                 <FormLabel>Password</FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="password"
-                                                        placeholder="********"
-                                                        {...field}
-                                                    />
+                                                    <Input type="password" placeholder="********" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -146,11 +155,7 @@ export const SignUpView = () => {
                                             <FormItem>
                                                 <FormLabel>Confirm Password</FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="password"
-                                                        placeholder="********"
-                                                        {...field}
-                                                    />
+                                                    <Input type="password" placeholder="********" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -165,11 +170,7 @@ export const SignUpView = () => {
                                     </Alert>
                                 )}
 
-                                <Button
-                                    disabled={pending}
-                                    type="submit"
-                                    className="w-full"
-                                >
+                                <Button disabled={pending} type="submit" className="w-full">
                                     Sign Up
                                 </Button>
                                 
@@ -182,19 +183,21 @@ export const SignUpView = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <Button
                                         disabled={pending}
+                                        onClick={() => onSocial("google")}
                                         variant="outline"
                                         type="button"
                                         className="w-full"
                                     >
-                                        Google
+                                        <FaGoogle className="mr-2 h-4 w-4"/> Google
                                     </Button>
                                     <Button
+                                        onClick={() => onSocial("github")}
                                         disabled={pending}
                                         variant="outline"
                                         type="button"
                                         className="w-full"
                                     >
-                                        Github
+                                        <FaGithub className="mr-2 h-4 w-4"/> Github
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">

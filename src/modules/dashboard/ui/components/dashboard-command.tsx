@@ -10,9 +10,8 @@ export const DashboardCommand = ({open,setOpen}:Props) => {
     return (
         <CommandResponsiveDialog open={open} onOpenChange={setOpen}>
             <CommandInput
-            placeholder="Find a meeting or a agent"
-            />
-            <CommandList>
+            placeholder="Find a meeting or an agent"
+            />            <CommandList>
                 <CommandItem>
                     Test1
                 </CommandItem>
